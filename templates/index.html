@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management</title>
+</head>
+<body>
+    <h1>Employee Management</h1>
+    <h2>Add Employee</h2>
+    <form id="addEmployeeForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+        <label for="loc">Location:</label>
+        <input type="text" id="loc" name="loc" required><br><br>
+        <button type="submit">Add Employee</button>
+    </form>
+    <hr>
+    <h2>Update Employee Location</h2>
+    <form id="updateEmployeeForm">
+        <label for="empId">Employee ID:</label>
+        <input type="number" id="empId" name="empId" required><br><br>
+        <label for="loc">Location:</label>
+        <input type="text" id="loc" name="loc" required><br><br>
+        <button type="submit">Update Location</button>
+    </form>    
+    <hr>
+    <h2>Get Employee Details</h2>
+    <form id="getEmployeeForm">
+        <label for="empIdDetails">Employee ID:</label>
+        <input type="number" id="empIdDetails" name="empIdDetails" required><br><br>
+        <button type="submit">Get Details</button>
+    </form>
+    <div id="employeeDetails"></div>
+
+    <script>
+        document.getElementById("addEmployeeForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            fetch('/add_employee', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.session);
+                form.reset();
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById("updateEmployeeForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const empId = formData.get("empId");
+            const newLoc = formData.get("newLoc");
+
+            fetch(`/upd_employee_loc/${empId}`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.session);
+                form.reset();
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById("getEmployeeForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const empId = form.elements["empIdDetails"].value;
+
+            fetch(`/get_employee/${empId}`)
+            .then(response => response.json())
+            .then(data => {
+                const detailsDiv = document.getElementById("employeeDetails");
+                detailsDiv.innerHTML = `
+                    <h3>Employee Details</h3>
+                    <p>ID: ${data.id}</p>
+                    <p>Name: ${data.name}</p>
+                    <p>Location: ${data.loc}</p>
+                `;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
